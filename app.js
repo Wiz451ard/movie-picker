@@ -422,18 +422,38 @@ function filterMoviesByPreference(
     return movieCollection.filter((movie) => {
         switch (selectedFilter) {
             case "damien":
-                return movie.damienWants;
+                /*
+                 * Damien only:
+                 * Damien checked, Lisa unchecked.
+                 */
+                return (
+                    movie.damienWants &&
+                    !movie.lisaWants
+                );
 
             case "lisa":
-                return movie.lisaWants;
+                /*
+                 * Lisa only:
+                 * Lisa checked, Damien unchecked.
+                 */
+                return (
+                    movie.lisaWants &&
+                    !movie.damienWants
+                );
 
             case "both":
+                /*
+                 * Both Damien and Lisa checked.
+                 */
                 return (
                     movie.damienWants &&
                     movie.lisaWants
                 );
 
             case "unselected":
+                /*
+                 * Neither person checked.
+                 */
                 return (
                     !movie.damienWants &&
                     !movie.lisaWants
