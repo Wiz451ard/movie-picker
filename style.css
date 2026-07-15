@@ -1,0 +1,332 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    color: #f5f5f5;
+    background-color: #111111;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            180deg,
+            #1c1c1e 0%,
+            #090909 100%
+        );
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app-container {
+    width: min(100%, 600px);
+    margin: 0 auto;
+
+    padding:
+        max(
+            24px,
+            env(safe-area-inset-top)
+        )
+        18px
+        max(
+            40px,
+            env(safe-area-inset-bottom)
+        );
+}
+
+.app-header {
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 34px;
+}
+
+.app-header p {
+    margin: 8px 0 0;
+    color: #a8a8ad;
+}
+
+.picker-section,
+.add-section,
+.library-section {
+    margin-bottom: 20px;
+    padding: 20px;
+
+    border: 1px solid #333338;
+    border-radius: 20px;
+
+    background-color:
+        rgba(35, 35, 38, 0.92);
+}
+
+.picker-section {
+    text-align: center;
+}
+
+.small-heading {
+    margin: 0;
+    color: #a8a8ad;
+
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.selected-movie {
+    min-height: 90px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 12px 0 20px;
+    padding: 16px;
+
+    border-radius: 14px;
+
+    background-color: #151517;
+
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.primary-button,
+.secondary-button {
+    width: 100%;
+    min-height: 50px;
+
+    border: none;
+    border-radius: 14px;
+
+    font-weight: 700;
+}
+
+.primary-button {
+    background-color: #ff453a;
+    color: white;
+}
+
+.secondary-button {
+    background-color: #0a84ff;
+    color: white;
+}
+
+.primary-button:active,
+.secondary-button:active {
+    transform: scale(0.98);
+}
+
+h2 {
+    margin: 0 0 16px;
+    font-size: 20px;
+}
+
+#movieForm {
+    display: grid;
+    gap: 12px;
+}
+
+input,
+select {
+    width: 100%;
+    min-height: 48px;
+
+    padding: 0 14px;
+
+    border: 1px solid #45454a;
+    border-radius: 12px;
+    outline: none;
+
+    background-color: #151517;
+    color: white;
+}
+
+input:focus,
+select:focus {
+    border-color: #0a84ff;
+}
+
+.preference-fieldset {
+    display: grid;
+    gap: 12px;
+
+    margin: 0;
+    padding: 14px;
+
+    border: 1px solid #45454a;
+    border-radius: 12px;
+}
+
+.preference-fieldset legend {
+    padding: 0 6px;
+
+    color: #a8a8ad;
+    font-size: 14px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-height: 32px;
+
+    cursor: pointer;
+}
+
+.checkbox-label input {
+    width: 22px;
+    min-height: 22px;
+    margin: 0;
+
+    accent-color: #0a84ff;
+}
+
+.library-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.library-heading h2 {
+    margin-bottom: 12px;
+}
+
+#movieCount {
+    color: #a8a8ad;
+    font-size: 14px;
+}
+
+.library-controls {
+    display: grid;
+    gap: 10px;
+
+    margin-bottom: 14px;
+}
+
+.movie-list {
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.movie-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    padding: 14px 4px;
+
+    border-bottom: 1px solid #3a3a3c;
+}
+
+.movie-information {
+    flex: 1;
+    min-width: 0;
+}
+
+.movie-title {
+    overflow-wrap: anywhere;
+    font-weight: 600;
+}
+
+.movie-format {
+    margin-top: 4px;
+
+    color: #a8a8ad;
+    font-size: 13px;
+}
+
+.movie-preferences {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.preference-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    min-height: 34px;
+    padding: 6px 9px;
+
+    border: 1px solid #45454a;
+    border-radius: 10px;
+
+    background-color: #1c1c1e;
+    color: #d1d1d6;
+
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.preference-toggle input {
+    width: 18px;
+    min-height: 18px;
+    margin: 0;
+
+    accent-color: #0a84ff;
+}
+
+.delete-button {
+    flex-shrink: 0;
+
+    padding: 8px 10px;
+
+    border: none;
+    border-radius: 9px;
+
+    background-color: #4a1c1c;
+    color: #ff6961;
+}
+
+.empty-message {
+    margin: 20px 0 4px;
+
+    color: #a8a8ad;
+    text-align: center;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+.picker-filter-label {
+    display: block;
+    margin-bottom: 7px;
+
+    color: #a8a8ad;
+    font-size: 14px;
+    text-align: left;
+}
+
+#pickerPreference {
+    margin-bottom: 12px;
+}

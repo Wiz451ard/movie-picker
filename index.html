@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <title>Movie Picker</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+    <main class="app-container">
+
+        <header class="app-header">
+            <h1>Movie Picker</h1>
+
+            <p>
+                Let fate choose tonight's movie.
+            </p>
+        </header>
+
+        <section class="picker-section">
+            <p class="small-heading">
+                Tonight you are watching
+            </p>
+
+            <div
+                id="selectedMovie"
+                class="selected-movie"
+            >
+                No movie selected
+            </div>
+
+            <label
+                class="picker-filter-label"
+                for="pickerPreference"
+            >
+                Choose from
+            </label>
+
+            <select id="pickerPreference">
+                <option value="all">
+                    All Movies
+                </option>
+
+                <option value="damien">
+                    Damien's List
+                </option>
+
+                <option value="lisa">
+                    Lisa's List
+                </option>
+
+                <option value="both">
+                    Damien and Lisa
+                </option>
+
+                <option value="unselected">
+                    Neither Selected
+                </option>
+            </select>
+
+            <button
+                id="pickMovieButton"
+                class="primary-button"
+                type="button"
+            >
+                Choose a Movie
+            </button>
+        </section>
+
+        <section class="add-section">
+            <h2>Add a Movie</h2>
+
+            <form id="movieForm">
+
+                <input
+                    id="movieTitle"
+                    type="text"
+                    placeholder="Movie title"
+                    autocomplete="off"
+                    required
+                >
+
+                <select id="movieFormat">
+                    <option value="DVD">
+                        DVD
+                    </option>
+
+                    <option value="Blu-ray">
+                        Blu-ray
+                    </option>
+
+                    <option value="Digital">
+                        Digital
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+                </select>
+
+                <fieldset class="preference-fieldset">
+                    <legend>
+                        Who wants to watch it?
+                    </legend>
+
+                    <label class="checkbox-label">
+                        <input
+                            id="damienWantsInput"
+                            type="checkbox"
+                        >
+
+                        <span>Damien</span>
+                    </label>
+
+                    <label class="checkbox-label">
+                        <input
+                            id="lisaWantsInput"
+                            type="checkbox"
+                        >
+
+                        <span>Lisa</span>
+                    </label>
+                </fieldset>
+
+                <button
+                    type="submit"
+                    class="secondary-button"
+                >
+                    Add Movie
+                </button>
+            </form>
+        </section>
+
+        <section class="library-section">
+
+            <div class="library-heading">
+                <h2>Movie Library</h2>
+
+                <span id="movieCount">
+                    0 movies
+                </span>
+            </div>
+
+            <div class="library-controls">
+
+                <select id="preferenceFilter">
+                    <option value="all">
+                        All Movies
+                    </option>
+
+                    <option value="damien">
+                        Damien's List
+                    </option>
+
+                    <option value="lisa">
+                        Lisa's List
+                    </option>
+
+                    <option value="both">
+                        Damien and Lisa
+                    </option>
+
+                    <option value="unselected">
+                        Neither Selected
+                    </option>
+                </select>
+
+                <input
+                    id="searchInput"
+                    type="search"
+                    placeholder="Search movies"
+                    autocomplete="off"
+                >
+            </div>
+
+            <ul
+                id="movieList"
+                class="movie-list"
+            ></ul>
+
+            <p
+                id="emptyMessage"
+                class="empty-message"
+            >
+                You have not added any movies yet.
+            </p>
+
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
