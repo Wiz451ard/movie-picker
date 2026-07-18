@@ -16,24 +16,6 @@ const movieTitleInput =
 const movieFormatInput =
     document.getElementById("movieFormat");
 
-const movieBarcodeInput =
-    document.getElementById("movieBarcode");
-
-const scanBarcodeButton =
-    document.getElementById("scanBarcodeButton");
-
-const lookupBarcodeButton =
-    document.getElementById("lookupBarcodeButton");
-
-const scanStatusElement =
-    document.getElementById("scanStatus");
-
-const scannerModal =
-    document.getElementById("scannerModal");
-
-const closeScannerButton =
-    document.getElementById("closeScannerButton");
-
 const damienWantsInput =
     document.getElementById(
         "damienWantsInput"
@@ -91,9 +73,6 @@ const addMovieButton =
 
 let movies = [];
 let lastSelectedMovieId = null;
-let barcodeScanner = null;
-let scannerIsRunning = false;
-let lastScannedBarcode = "";
 
 /**
  * Checks whether the Google Script URL
@@ -123,6 +102,7 @@ async function loadMovies() {
     }
 
     setLoadingState(true);
+
     showLibraryMessage(
         "Loading movies..."
     );
@@ -184,8 +164,6 @@ function normaliseMovie(movie) {
     return {
         ...movie,
 
-        barcode: String(movie.barcode || ""),
-
         damienWants:
             movie.damienWants === true,
 
@@ -235,7 +213,6 @@ async function sendGoogleRequest(
  * Adds a movie to Google Sheets.
  */
 async function addMovie(
-    barcode,
     title,
     format,
     damienWants,
@@ -257,7 +234,6 @@ async function addMovie(
         const result =
             await sendGoogleRequest({
                 action: "addMovie",
-                barcode: cleanBarcode(barcode),
                 title: cleanedTitle,
                 format: format,
                 damienWants: damienWants,
@@ -271,11 +247,13 @@ async function addMovie(
             );
         }
 
-        movieBarcodeInput.value = "";
         movieTitleInput.value = "";
-        setScanStatus("");
-        damienWantsInput.checked = false;
-        lisaWantsInput.checked = false;
+
+        damienWantsInput.checked =
+            false;
+
+        lisaWantsInput.checked =
+            false;
 
         await loadMovies();
 
@@ -293,189 +271,6 @@ async function addMovie(
 
         setLoadingState(false);
     }
-}
-
-
-/**
- * Keeps only digits from a UPC/EAN value.
- */
-function cleanBarcode(value) {
-    return String(value || "").replace(/\D/g, "");
-}
-
-/**
- * Displays feedback beneath the scan button.
- */
-function setScanStatus(message, type = "") {
-    scanStatusElement.textContent = message;
-    scanStatusElement.className = "status-message";
-
-    if (type) {
-        scanStatusElement.classList.add(type);
-    }
-}
-
-/**
- * Looks up a scanned or manually entered barcode.
- */
-async function lookupBarcode(rawBarcode) {
-    const barcode = cleanBarcode(rawBarcode);
-
-    if (!barcode) {
-        setScanStatus(
-            "Scan a barcode or enter its number first.",
-            "error"
-        );
-        return;
-    }
-
-    movieBarcodeInput.value = barcode;
-    lookupBarcodeButton.disabled = true;
-    lookupBarcodeButton.textContent = "Looking...";
-    setScanStatus("Looking up barcode...");
-
-    try {
-        const result = await sendGoogleRequest({
-            action: "lookupBarcode",
-            barcode: barcode
-        });
-
-        if (!result.success) {
-            throw new Error(
-                result.message ||
-                "No product information was found."
-            );
-        }
-
-        if (result.title) {
-            movieTitleInput.value = result.title;
-        }
-
-        if (result.format) {
-            movieFormatInput.value = result.format;
-        }
-
-        setScanStatus(
-            "Movie details found. Check them before adding.",
-            "success"
-        );
-
-        movieTitleInput.focus();
-    } catch (error) {
-        console.error("Barcode lookup failed:", error);
-
-        setScanStatus(
-            `${error.message} Enter the title manually if needed.`,
-            "error"
-        );
-
-        movieTitleInput.focus();
-    } finally {
-        lookupBarcodeButton.disabled = false;
-        lookupBarcodeButton.textContent = "Look Up";
-    }
-}
-
-/**
- * Opens the camera scanner.
- */
-async function startBarcodeScanner() {
-    if (typeof Html5Qrcode === "undefined") {
-        setScanStatus(
-            "The barcode scanner library did not load. Check your internet connection.",
-            "error"
-        );
-        return;
-    }
-
-    scannerModal.hidden = false;
-    document.body.style.overflow = "hidden";
-    setScanStatus("Starting camera...");
-
-    if (!barcodeScanner) {
-        barcodeScanner = new Html5Qrcode(
-            "barcodeReader",
-            {
-                formatsToSupport: [
-                    Html5QrcodeSupportedFormats.EAN_13,
-                    Html5QrcodeSupportedFormats.EAN_8,
-                    Html5QrcodeSupportedFormats.UPC_A,
-                    Html5QrcodeSupportedFormats.UPC_E,
-                    Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION
-                ]
-            }
-        );
-    }
-
-    try {
-        await barcodeScanner.start(
-            { facingMode: "environment" },
-            {
-                fps: 10,
-                qrbox: (viewfinderWidth, viewfinderHeight) => {
-                    return {
-                        width: Math.floor(viewfinderWidth * 0.9),
-                        height: Math.min(
-                            180,
-                            Math.floor(viewfinderHeight * 0.45)
-                        )
-                    };
-                },
-                aspectRatio: 1.777778
-            },
-            handleBarcodeScanned,
-            () => {}
-        );
-
-        scannerIsRunning = true;
-        setScanStatus("Camera ready. Point it at the barcode.");
-    } catch (error) {
-        console.error("Could not start scanner:", error);
-        await stopBarcodeScanner();
-
-        setScanStatus(
-            "The camera could not be opened. Allow camera access in Safari and try again.",
-            "error"
-        );
-    }
-}
-
-/**
- * Handles one successful barcode scan.
- */
-async function handleBarcodeScanned(decodedText) {
-    const barcode = cleanBarcode(decodedText);
-
-    if (!barcode || barcode === lastScannedBarcode) {
-        return;
-    }
-
-    lastScannedBarcode = barcode;
-    movieBarcodeInput.value = barcode;
-
-    await stopBarcodeScanner();
-    await lookupBarcode(barcode);
-}
-
-/**
- * Stops the camera and closes the scanner.
- */
-async function stopBarcodeScanner() {
-    if (barcodeScanner && scannerIsRunning) {
-        try {
-            await barcodeScanner.stop();
-        } catch (error) {
-            console.warn("Scanner stop warning:", error);
-        }
-    }
-
-    scannerIsRunning = false;
-    scannerModal.hidden = true;
-    document.body.style.overflow = "";
-
-    window.setTimeout(() => {
-        lastScannedBarcode = "";
-    }, 1000);
 }
 
 /**
@@ -620,60 +415,61 @@ async function deleteMovie(
 }
 
 /**
- * Returns movies matching the selected list.
- */
-/**
  * Filters movies using a supplied preference.
  */
 function filterMoviesByPreference(
     movieCollection,
     selectedFilter
 ) {
-    return movieCollection.filter((movie) => {
-        switch (selectedFilter) {
-            case "damien":
-                /*
-                 * Damien only:
-                 * Damien checked, Lisa unchecked.
-                 */
-                return (
-                    movie.damienWants &&
-                    !movie.lisaWants
-                );
+    return movieCollection.filter(
+        (movie) => {
+            switch (selectedFilter) {
+                case "damien":
+                    /*
+                     * Damien only:
+                     * Damien checked,
+                     * Lisa unchecked.
+                     */
+                    return (
+                        movie.damienWants &&
+                        !movie.lisaWants
+                    );
 
-            case "lisa":
-                /*
-                 * Lisa only:
-                 * Lisa checked, Damien unchecked.
-                 */
-                return (
-                    movie.lisaWants &&
-                    !movie.damienWants
-                );
+                case "lisa":
+                    /*
+                     * Lisa only:
+                     * Lisa checked,
+                     * Damien unchecked.
+                     */
+                    return (
+                        movie.lisaWants &&
+                        !movie.damienWants
+                    );
 
-            case "both":
-                /*
-                 * Both Damien and Lisa checked.
-                 */
-                return (
-                    movie.damienWants &&
-                    movie.lisaWants
-                );
+                case "both":
+                    /*
+                     * Both Damien and Lisa checked.
+                     */
+                    return (
+                        movie.damienWants &&
+                        movie.lisaWants
+                    );
 
-            case "unselected":
-                /*
-                 * Neither person checked.
-                 */
-                return (
-                    !movie.damienWants &&
-                    !movie.lisaWants
-                );
+                case "unselected":
+                    /*
+                     * Neither person checked.
+                     */
+                    return (
+                        !movie.damienWants &&
+                        !movie.lisaWants
+                    );
 
-            case "all":
-            default:
-                return true;
+                case "all":
+                default:
+                    return true;
+            }
         }
-    });
+    );
 }
 
 /**
@@ -808,11 +604,6 @@ function renderMovies() {
                         .toLowerCase()
                         .includes(
                             searchText
-                        ) ||
-
-                    movie.barcode
-                        .includes(
-                            searchText
                         )
                 );
             }
@@ -859,19 +650,6 @@ function renderMovies() {
 
             formatElement.textContent =
                 movie.format;
-
-            const barcodeElement =
-                document.createElement(
-                    "div"
-                );
-
-            barcodeElement.className =
-                "movie-barcode";
-
-            barcodeElement.textContent =
-                movie.barcode
-                    ? `Barcode: ${movie.barcode}`
-                    : "";
 
             const preferencesElement =
                 document.createElement(
@@ -956,7 +734,6 @@ function renderMovies() {
             movieInformation.append(
                 titleElement,
                 formatElement,
-                barcodeElement,
                 preferencesElement
             );
 
@@ -1021,8 +798,11 @@ function createPreferenceToggle(
             "input"
         );
 
-    checkbox.type = "checkbox";
-    checkbox.checked = checked;
+    checkbox.type =
+        "checkbox";
+
+    checkbox.checked =
+        checked;
 
     const labelText =
         document.createElement(
@@ -1069,15 +849,6 @@ function setLoadingState(
     movieFormatInput.disabled =
         isLoading;
 
-    movieBarcodeInput.disabled =
-        isLoading;
-
-    scanBarcodeButton.disabled =
-        isLoading;
-
-    lookupBarcodeButton.disabled =
-        isLoading;
-
     damienWantsInput.disabled =
         isLoading;
 
@@ -1089,8 +860,9 @@ function setLoadingState(
 
     preferenceFilter.disabled =
         isLoading;
+
     pickerPreference.disabled =
-    isLoading;
+        isLoading;
 }
 
 /**
@@ -1102,51 +874,11 @@ movieForm.addEventListener(
         event.preventDefault();
 
         addMovie(
-            movieBarcodeInput.value,
             movieTitleInput.value,
             movieFormatInput.value,
             damienWantsInput.checked,
             lisaWantsInput.checked
         );
-    }
-);
-
-
-/**
- * Barcode controls.
- */
-scanBarcodeButton.addEventListener(
-    "click",
-    startBarcodeScanner
-);
-
-closeScannerButton.addEventListener(
-    "click",
-    stopBarcodeScanner
-);
-
-lookupBarcodeButton.addEventListener(
-    "click",
-    () => {
-        lookupBarcode(movieBarcodeInput.value);
-    }
-);
-
-movieBarcodeInput.addEventListener(
-    "input",
-    () => {
-        movieBarcodeInput.value = cleanBarcode(
-            movieBarcodeInput.value
-        );
-    }
-);
-
-scannerModal.addEventListener(
-    "click",
-    (event) => {
-        if (event.target === scannerModal) {
-            stopBarcodeScanner();
-        }
     }
 );
 
