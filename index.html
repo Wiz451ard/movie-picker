@@ -10,69 +10,36 @@
 
     <title>Movie Picker</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <main class="app-container">
-
         <header class="app-header">
             <h1>Movie Picker</h1>
-
-            <p>
-                Let fate choose tonight's movie.
-            </p>
+            <p>Let fate choose tonight's movie.</p>
         </header>
 
         <section class="picker-section">
-            <p class="small-heading">
-                Tonight you are watching
-            </p>
+            <p class="small-heading">Tonight you are watching</p>
 
-            <div
-                id="selectedMovie"
-                class="selected-movie"
-            >
+            <div id="selectedMovie" class="selected-movie">
                 No movie selected
             </div>
 
-            <label
-                class="picker-filter-label"
-                for="pickerPreference"
-            >
+            <label class="picker-filter-label" for="pickerPreference">
                 Choose from
             </label>
 
             <select id="pickerPreference">
-                <option value="all">
-                    All Movies
-                </option>
-
-                <option value="damien">
-                    Damien's List
-                </option>
-
-                <option value="lisa">
-                    Lisa's List
-                </option>
-
-                <option value="both">
-                    Damien and Lisa
-                </option>
-
-                <option value="unselected">
-                    Neither Selected
-                </option>
+                <option value="all">All Movies</option>
+                <option value="damien">Damien's List</option>
+                <option value="lisa">Lisa's List</option>
+                <option value="both">Damien and Lisa</option>
+                <option value="unselected">Neither Selected</option>
             </select>
 
-            <button
-                id="pickMovieButton"
-                class="primary-button"
-                type="button"
-            >
+            <button id="pickMovieButton" class="primary-button" type="button">
                 Choose a Movie
             </button>
         </section>
@@ -80,8 +47,29 @@
         <section class="add-section">
             <h2>Add a Movie</h2>
 
-            <form id="movieForm">
+            <button id="scanBarcodeButton" class="scan-button" type="button">
+                Scan Barcode
+            </button>
 
+            <p id="scanStatus" class="status-message" aria-live="polite"></p>
+
+            <form id="movieForm">
+                <label class="field-label" for="movieBarcode">Barcode</label>
+                <div class="barcode-row">
+                    <input
+                        id="movieBarcode"
+                        type="text"
+                        inputmode="numeric"
+                        placeholder="Scan or enter barcode"
+                        autocomplete="off"
+                    >
+
+                    <button id="lookupBarcodeButton" class="small-button" type="button">
+                        Look Up
+                    </button>
+                </div>
+
+                <label class="field-label" for="movieTitle">Movie title</label>
                 <input
                     id="movieTitle"
                     type="text"
@@ -90,89 +78,48 @@
                     required
                 >
 
+                <label class="field-label" for="movieFormat">Format</label>
                 <select id="movieFormat">
-                    <option value="DVD">
-                        DVD
-                    </option>
-
-                    <option value="Blu-ray">
-                        Blu-ray
-                    </option>
-
-                    <option value="Digital">
-                        Digital
-                    </option>
-
-                    <option value="Other">
-                        Other
-                    </option>
+                    <option value="DVD">DVD</option>
+                    <option value="Blu-ray">Blu-ray</option>
+                    <option value="4K UHD">4K UHD</option>
+                    <option value="Digital">Digital</option>
+                    <option value="Other">Other</option>
                 </select>
 
                 <fieldset class="preference-fieldset">
-                    <legend>
-                        Who wants to watch it?
-                    </legend>
+                    <legend>Who wants to watch it?</legend>
 
                     <label class="checkbox-label">
-                        <input
-                            id="damienWantsInput"
-                            type="checkbox"
-                        >
-
+                        <input id="damienWantsInput" type="checkbox">
                         <span>Damien</span>
                     </label>
 
                     <label class="checkbox-label">
-                        <input
-                            id="lisaWantsInput"
-                            type="checkbox"
-                        >
-
+                        <input id="lisaWantsInput" type="checkbox">
                         <span>Lisa</span>
                     </label>
                 </fieldset>
 
-                <button
-                    type="submit"
-                    class="secondary-button"
-                >
+                <button type="submit" class="secondary-button">
                     Add Movie
                 </button>
             </form>
         </section>
 
         <section class="library-section">
-
             <div class="library-heading">
                 <h2>Movie Library</h2>
-
-                <span id="movieCount">
-                    0 movies
-                </span>
+                <span id="movieCount">0 movies</span>
             </div>
 
             <div class="library-controls">
-
                 <select id="preferenceFilter">
-                    <option value="all">
-                        All Movies
-                    </option>
-
-                    <option value="damien">
-                        Damien's List
-                    </option>
-
-                    <option value="lisa">
-                        Lisa's List
-                    </option>
-
-                    <option value="both">
-                        Damien and Lisa
-                    </option>
-
-                    <option value="unselected">
-                        Neither Selected
-                    </option>
+                    <option value="all">All Movies</option>
+                    <option value="damien">Damien's List</option>
+                    <option value="lisa">Lisa's List</option>
+                    <option value="both">Damien and Lisa</option>
+                    <option value="unselected">Neither Selected</option>
                 </select>
 
                 <input
@@ -183,22 +130,32 @@
                 >
             </div>
 
-            <ul
-                id="movieList"
-                class="movie-list"
-            ></ul>
+            <ul id="movieList" class="movie-list"></ul>
 
-            <p
-                id="emptyMessage"
-                class="empty-message"
-            >
+            <p id="emptyMessage" class="empty-message">
                 You have not added any movies yet.
             </p>
-
         </section>
-
     </main>
 
+    <div id="scannerModal" class="scanner-modal" hidden>
+        <div class="scanner-panel" role="dialog" aria-modal="true" aria-labelledby="scannerTitle">
+            <div class="scanner-heading">
+                <h2 id="scannerTitle">Scan Barcode</h2>
+                <button id="closeScannerButton" class="close-button" type="button" aria-label="Close scanner">
+                    Close
+                </button>
+            </div>
+
+            <p class="scanner-instructions">
+                Hold the DVD or Blu-ray barcode inside the frame.
+            </p>
+
+            <div id="barcodeReader"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
